@@ -13,7 +13,7 @@ public class AppMain extends Application {
         try {
             GridPane root = FXMLLoader.load(getClass().getResource("view.fxml"));
 
-            Scene scene = new Scene(root, 600, 400);
+            Scene scene = new Scene(root, 800, 600);
             primaryStage.setScene(scene);
 
             primaryStage.setTitle("Graph Viewer");
