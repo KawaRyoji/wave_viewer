@@ -63,6 +63,13 @@ public class Complex {
         return x;
     }
 
+    /**
+     * @return 複素数の大きさ
+     */
+    public static double power(Complex c) {
+        return Math.sqrt(Math.pow(c.real, 2) + Math.pow(c.imag, 2));
+    }
+
     @Override
     public String toString() {
         return String.format("%f + j%f", real, imag);

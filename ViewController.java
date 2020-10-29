@@ -10,10 +10,13 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.chart.LineChart;
+import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.MenuBar;
+import javafx.scene.control.RadioButton;
 import javafx.scene.control.Slider;
 import javafx.scene.control.TextField;
+import javafx.scene.control.ToggleGroup;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
@@ -27,13 +30,21 @@ public class ViewController implements Initializable {
     @FXML
     private LineChart<Integer, Short> graphView;
     @FXML
-    private Slider horizontalSlider;
+    private NumberAxis xAxis;
     @FXML
-    private Slider rangeSlider;
+    private Slider horizontalSlider;
     @FXML
     private TextField horizontalSliderValue;
     @FXML
-    private TextField rangeSliderValue;
+    private ToggleGroup selectRange;
+    @FXML
+    private RadioButton range256;
+    @FXML
+    private RadioButton range512;
+    @FXML
+    private RadioButton range1024;
+    @FXML
+    private RadioButton range2056;
 
     private Window window;
     private Short[] waveData;
@@ -41,13 +52,11 @@ public class ViewController implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         setDisableProperty(false);
+        selectRange.selectedToggleProperty().addListener(s -> handleSelectRange());
     }
-    
+
     @FXML
     protected void onFileMenuClicked(ActionEvent event) {
-        final int MIN_DROW_INDEX = 150;
-        final int MAX_DROW_INDEX = 15000;
-
         File chosenFile = choseFile();
         
         if (chosenFile == null)
@@ -57,13 +66,13 @@ public class ViewController implements Initializable {
 
         loader.addEventHandler(WorkerStateEvent.WORKER_STATE_SUCCEEDED, workerEvent -> {
             waveData = loader.getValue();
-            drowLineChart(0, MIN_DROW_INDEX);
+            drowLineChart();
 
             graphView.setTitle(chosenFile.getName());
-            initSliderProperty(rangeSlider, MIN_DROW_INDEX, MAX_DROW_INDEX);
-            initSliderProperty(horizontalSlider, 0, waveData.length);
+            
+            initSliderProperty(0, waveData.length - getRange(), 0);
             horizontalSliderValue.setText(String.valueOf((int) horizontalSlider.getValue()));
-            rangeSliderValue.setText(String.valueOf((int) rangeSlider.getValue()));
+
         });
 
         loader.start();
@@ -80,10 +89,13 @@ public class ViewController implements Initializable {
         return fc.showOpenDialog(window);
     }
 
-    private void drowLineChart(int start, int end) {
+    private void drowLineChart() {
         setDisableProperty(true);
-
+        
         lineChartClear();
+
+        int start = getOffset();
+        int end = start + getRange();
 
         // 範囲をチェック
         int start_normal = Math.max(start, 0);
@@ -104,6 +116,10 @@ public class ViewController implements Initializable {
                     ObservableList<XYChart.Series<Integer, Short>> seriesList = FXCollections.observableArrayList();
                     seriesList.add(series);
                     graphView.getData().setAll(seriesList);
+                    xAxis.setLowerBound(start);
+                    xAxis.setUpperBound(end);
+                    xAxis.setTickUnit(getRange() / 16);
+                    initSliderProperty(0, waveData.length - getRange(), start);
                 });
             } catch (Exception e) {
                 e.printStackTrace();
@@ -128,26 +144,26 @@ public class ViewController implements Initializable {
 
     @FXML
     protected void handleSlider(MouseEvent event) {
-        int min = (int) horizontalSlider.getValue();
-        int max = min + (int) rangeSlider.getValue();
-        horizontalSliderValue.setText(String.valueOf(min));
-        rangeSliderValue.setText(String.valueOf((int) rangeSlider.getValue()));
+        horizontalSliderValue.setText(String.valueOf((int)horizontalSlider.getValue()));
 
-        drowLineChart(min, max);
+        drowLineChart();
     }
 
-    private void initSliderProperty(Slider slider, int min, int max) {
-        slider.setMin(min);
-        slider.setMax(max);
-        slider.setMajorTickUnit((max - min) / 4);
-        slider.setValue(min);
+    private void initSliderProperty(int min, int max, int ini) {
+        horizontalSlider.setMin(min);
+        horizontalSlider.setMax(max);
+        horizontalSlider.setMajorTickUnit((max - min) / 4);
+        horizontalSlider.setValue(ini);
     }
 
+    /** グラフを表示したかでdisablePropertyを操作する */
     private void setDisableProperty(boolean isGraphPainted) {
         horizontalSlider.setDisable(!isGraphPainted);
-        rangeSlider.setDisable(!isGraphPainted);
+        range256.setDisable(!isGraphPainted);
+        range512.setDisable(!isGraphPainted);
+        range1024.setDisable(!isGraphPainted);
+        range2056.setDisable(!isGraphPainted);
         horizontalSliderValue.setDisable(!isGraphPainted);
-        rangeSliderValue.setDisable(!isGraphPainted);
     }
 
     @FXML
@@ -165,36 +181,32 @@ public class ViewController implements Initializable {
             horizontalSlider.setValue(value);
             horizontalSliderValue.setText(String.valueOf(value));
 
-            int min = (int) horizontalSlider.getValue();
-            int max = min + (int) rangeSlider.getValue();
-            drowLineChart(min, max);
+            drowLineChart();
         } catch (Exception e) {
             horizontalSliderValue.setText(String.valueOf((int) horizontalSlider.getValue()));
             return;
         }
     }
     
-    @FXML
-    protected void handleRangeSliderValueField(KeyEvent event) {
-        if (event.getCode() != KeyCode.ENTER)
-            return;
+    private void handleSelectRange() {
+        drowLineChart();
+    }
 
-        String text = rangeSliderValue.getText();
+    /** グラフの表示範囲を取得 */
+    private int getRange() {
+        RadioButton range = (RadioButton) selectRange.getSelectedToggle();
+        int num = 0;
         try {
-            int value = Integer.parseInt(text);
-
-            value = Math.max((int) rangeSlider.getMin(), value);
-            value = Math.min((int) rangeSlider.getMax(), value);
-
-            rangeSlider.setValue(value);
-            rangeSliderValue.setText(String.valueOf(value));
-
-            int min = (int) horizontalSlider.getValue();
-            int max = min + (int) rangeSlider.getValue();
-            drowLineChart(min, max);
+            num = Integer.parseInt(range.getText());
         } catch (Exception e) {
-            rangeSliderValue.setText(String.valueOf((int) rangeSlider.getValue()));
-            return;
+            e.printStackTrace();
         }
+
+        return num;
+    }
+
+    /** グラフの表示位置を取得 */
+    private int getOffset() {
+        return (int) horizontalSlider.getValue();
     }
 }
