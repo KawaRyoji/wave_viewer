@@ -11,7 +11,7 @@ public class AppMain extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
         try {
-            GridPane root = FXMLLoader.load(getClass().getResource("mainView.fxml"));
+            GridPane root = FXMLLoader.load(getClass().getResource("main_view/mainView.fxml"));
 
             Scene scene = new Scene(root, 800, 600);
             primaryStage.setScene(scene);

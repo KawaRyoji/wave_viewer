@@ -1,3 +1,5 @@
+package main_view;
+
 import java.io.File;
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -12,6 +14,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
+import javafx.scene.control.Button;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.Slider;
@@ -45,6 +48,8 @@ public class ViewController implements Initializable {
     private RadioButton range1024;
     @FXML
     private RadioButton range2056;
+    @FXML
+    private Button viewFreq;
 
     private Window window;
     private Short[] waveData;
@@ -72,7 +77,6 @@ public class ViewController implements Initializable {
             
             initSliderProperty(0, waveData.length - getRange(), 0);
             horizontalSliderValue.setText(String.valueOf((int) horizontalSlider.getValue()));
-
         });
 
         loader.start();
@@ -208,5 +212,10 @@ public class ViewController implements Initializable {
     /** グラフの表示位置を取得 */
     private int getOffset() {
         return (int) horizontalSlider.getValue();
+    }
+
+    @FXML
+    protected void handleViewFreqButton(ActionEvent event) {
+        
     }
 }
