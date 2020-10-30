@@ -247,7 +247,7 @@ public class ViewController implements Initializable {
             
             Scene scene = new Scene(pane, 600, 400);
             Stage sub = new Stage();
-            sub.setTitle("Freqency View");
+            sub.setTitle("Frequency View");
             sub.setScene(scene);
             sub.initOwner(window);
             sub.setFullScreen(false);
