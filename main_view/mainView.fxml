@@ -19,7 +19,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<GridPane stylesheets="@linechart.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="main_view.ViewController">
+<GridPane xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="main_view.ViewController">
   <columnConstraints>
     <ColumnConstraints hgrow="SOMETIMES" />
     <ColumnConstraints hgrow="SOMETIMES" maxWidth="400.0" minWidth="-Infinity" />
@@ -94,7 +94,7 @@
          <padding>
             <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
          </padding></VBox>
-      <LineChart fx:id="graphView" animated="false" createSymbols="false" GridPane.rowIndex="1">
+      <LineChart fx:id="graphView" animated="false" createSymbols="false" stylesheets="@../css/linechart.css" GridPane.rowIndex="1">
         <xAxis>
           <NumberAxis animated="false" autoRanging="false" forceZeroInRange="false" side="BOTTOM" tickUnit="10.0" fx:id="xAxis" />
         </xAxis>

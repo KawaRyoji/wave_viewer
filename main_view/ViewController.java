@@ -1,16 +1,26 @@
 package main_view;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
+import javax.sound.sampled.AudioFileFormat;
+import javax.sound.sampled.AudioFormat;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.UnsupportedAudioFileException;
+
+import freq_view.FreqViewController;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.WorkerStateEvent;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Scene;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
@@ -23,7 +33,9 @@ import javafx.scene.control.ToggleGroup;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.GridPane;
 import javafx.stage.FileChooser;
+import javafx.stage.Stage;
 import javafx.stage.Window;
 import javafx.stage.FileChooser.ExtensionFilter;
 
@@ -53,6 +65,7 @@ public class ViewController implements Initializable {
 
     private Window window;
     private Short[] waveData;
+    private AudioFormat format;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -63,9 +76,16 @@ public class ViewController implements Initializable {
     @FXML
     protected void onFileMenuClicked(ActionEvent event) {
         File chosenFile = choseFile();
-        
+
         if (chosenFile == null)
             return;
+
+        try {
+            AudioInputStream ais = AudioSystem.getAudioInputStream(chosenFile);
+            format = ais.getFormat();
+        } catch (UnsupportedAudioFileException | IOException e) {
+            e.printStackTrace();
+        }
 
         WaveFileLoadTask loader = new WaveFileLoadTask(chosenFile);
 
@@ -74,14 +94,14 @@ public class ViewController implements Initializable {
             drowLineChart();
 
             graphView.setTitle(chosenFile.getName());
-            
+
             initSliderProperty(0, waveData.length - getRange(), 0);
             horizontalSliderValue.setText(String.valueOf((int) horizontalSlider.getValue()));
         });
 
         loader.start();
     }
-    
+
     private File choseFile() {
         final String INIT_FILEPASS = "./";
         window = menuBar.getScene().getWindow();
@@ -95,7 +115,7 @@ public class ViewController implements Initializable {
 
     private void drowLineChart() {
         setDisableProperty(true);
-        
+
         lineChartClear();
 
         int start = getOffset();
@@ -120,6 +140,7 @@ public class ViewController implements Initializable {
                     ObservableList<XYChart.Series<Integer, Short>> seriesList = FXCollections.observableArrayList();
                     seriesList.add(series);
                     graphView.getData().setAll(seriesList);
+
                     xAxis.setLowerBound(start);
                     xAxis.setUpperBound(end);
                     xAxis.setTickUnit(getRange() / 16);
@@ -148,7 +169,7 @@ public class ViewController implements Initializable {
 
     @FXML
     protected void handleSlider(MouseEvent event) {
-        horizontalSliderValue.setText(String.valueOf((int)horizontalSlider.getValue()));
+        horizontalSliderValue.setText(String.valueOf((int) horizontalSlider.getValue()));
 
         drowLineChart();
     }
@@ -168,6 +189,7 @@ public class ViewController implements Initializable {
         range1024.setDisable(!isGraphPainted);
         range2056.setDisable(!isGraphPainted);
         horizontalSliderValue.setDisable(!isGraphPainted);
+        viewFreq.setDisable(!isGraphPainted);
     }
 
     @FXML
@@ -191,7 +213,7 @@ public class ViewController implements Initializable {
             return;
         }
     }
-    
+
     private void handleSelectRange() {
         drowLineChart();
     }
@@ -216,6 +238,22 @@ public class ViewController implements Initializable {
 
     @FXML
     protected void handleViewFreqButton(ActionEvent event) {
-        
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("../freq_view/freqView.fxml"));
+            GridPane pane = loader.load();
+            
+            FreqViewController controller = loader.getController();
+            controller.drowLineChart(waveData, format, getOffset(), getOffset() + getRange());
+            
+            Scene scene = new Scene(pane, 600, 400);
+            Stage sub = new Stage();
+            sub.setTitle("Freqency View");
+            sub.setScene(scene);
+            sub.initOwner(window);
+            sub.setFullScreen(false);
+            sub.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

@@ -66,7 +66,7 @@ public class Complex {
     /**
      * @return 複素数の大きさ
      */
-    public static double power(Complex c) {
+    public static double amp(Complex c) {
         return Math.sqrt(Math.pow(c.real, 2) + Math.pow(c.imag, 2));
     }
 
