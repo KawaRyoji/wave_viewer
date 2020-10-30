@@ -22,8 +22,6 @@ public class FreqViewController implements Initializable {
     @FXML
     private NumberAxis xAxis;
 
-    private Complex[] freqData;
-
     @Override
     public void initialize(URL location, ResourceBundle resources) {
 
@@ -33,13 +31,13 @@ public class FreqViewController implements Initializable {
         new Thread(() -> {
             try {
                 Platform.runLater(() -> {
-                    freqData = dft(waveData, start, end);
+                    Complex[] freqData = dft(waveData, start, end);
                     double fs = format.getSampleRate();
 
                     ObservableList<XYChart.Data<Integer, Double>> seriesData = FXCollections.observableArrayList();
 
                     for (int i = 0; i < freqData.length; i++) {
-                        double f = i * fs / freqData.length;
+                        double f = i * fs / freqData.length - (fs / 2);
                         seriesData.add(new XYChart.Data<Integer, Double>((int)f, Complex.amp(freqData[i])));
                     }
 
@@ -53,8 +51,8 @@ public class FreqViewController implements Initializable {
                     double endTime = (double) end / fs;
                     freqView.setTitle("fs = " + fs + "Hz, " + startTime + "s - " + endTime + "s");
                     xAxis.setAutoRanging(false);
-                    xAxis.setLowerBound(0);
-                    xAxis.setUpperBound(fs);
+                    xAxis.setLowerBound(- fs / 2);
+                    xAxis.setUpperBound(fs / 2);
                     xAxis.setTickUnit(fs / 16);
                 });
             } catch (Exception e) {

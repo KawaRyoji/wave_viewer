@@ -10,6 +10,8 @@
 <?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.RadioButton?>
 <?import javafx.scene.control.Slider?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.ToggleGroup?>
 <?import javafx.scene.layout.ColumnConstraints?>
@@ -17,7 +19,6 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
-<?import javafx.scene.text.Font?>
 
 <GridPane xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="main_view.ViewController">
   <columnConstraints>
@@ -25,11 +26,12 @@
     <ColumnConstraints hgrow="SOMETIMES" maxWidth="400.0" minWidth="-Infinity" />
   </columnConstraints>
   <rowConstraints>
+    <RowConstraints />
     <RowConstraints maxHeight="-Infinity" vgrow="SOMETIMES" />
-    <RowConstraints vgrow="SOMETIMES" />
+      <RowConstraints vgrow="SOMETIMES" />
   </rowConstraints>
    <children>
-      <MenuBar fx:id="menuBar" GridPane.columnSpan="2147483647">
+      <MenuBar fx:id="menuBar" GridPane.columnSpan="2147483647" GridPane.rowIndex="1">
         <menus>
           <Menu mnemonicParsing="false" onAction="#onFileMenuClicked" text="File">
             <items>
@@ -48,53 +50,7 @@
           </Menu>
         </menus>
       </MenuBar>
-      <VBox spacing="10.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
-         <children>
-            <Label alignment="CENTER" maxWidth="1.7976931348623157E308" text="Controlls" textAlignment="CENTER">
-               <font>
-                  <Font size="20.0" />
-               </font>
-            </Label>
-            <Label text="Slide" />
-            <TextField fx:id="horizontalSliderValue" onKeyReleased="#handleHorizontalSliderValueField" />
-            <Slider fx:id="horizontalSlider" onMouseDragged="#handleSlider" showTickLabels="true" />
-            <Label text="Range" />
-            <HBox>
-               <children>
-                  <RadioButton fx:id="range256" mnemonicParsing="false" selected="true" text="256">
-                     <padding>
-                        <Insets bottom="5.0" right="5.0" top="5.0" />
-                     </padding>
-                     <toggleGroup>
-                        <ToggleGroup fx:id="selectRange" />
-                     </toggleGroup>
-                  </RadioButton>
-                  <RadioButton fx:id="range512" mnemonicParsing="false" text="512" toggleGroup="$selectRange">
-                     <padding>
-                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-                     </padding>
-                  </RadioButton>
-                  <RadioButton fx:id="range1024" mnemonicParsing="false" text="1024" toggleGroup="$selectRange">
-                     <padding>
-                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-                     </padding>
-                  </RadioButton>
-                  <RadioButton fx:id="range2056" mnemonicParsing="false" text="2048" toggleGroup="$selectRange">
-                     <padding>
-                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-                     </padding>
-                  </RadioButton>
-               </children>
-            </HBox>
-            <Button fx:id="viewFreq" mnemonicParsing="false" onAction="#handleViewFreqButton" text="View Frequency" />
-         </children>
-         <GridPane.margin>
-            <Insets />
-         </GridPane.margin>
-         <padding>
-            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-         </padding></VBox>
-      <LineChart fx:id="graphView" animated="false" createSymbols="false" stylesheets="@../css/linechart.css" GridPane.rowIndex="1">
+      <LineChart fx:id="graphView" animated="false" createSymbols="false" stylesheets="@../css/linechart.css" GridPane.rowIndex="2">
         <xAxis>
           <NumberAxis animated="false" autoRanging="false" forceZeroInRange="false" side="BOTTOM" tickUnit="10.0" fx:id="xAxis" />
         </xAxis>
@@ -108,5 +64,71 @@
             <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
          </padding>
       </LineChart>
+      <TabPane tabClosingPolicy="UNAVAILABLE" GridPane.columnIndex="1" GridPane.rowIndex="2">
+        <tabs>
+          <Tab text="Controlls">
+               <content>
+                  <VBox spacing="10.0">
+                     <children>
+                        <Label text="Slide" />
+                        <TextField fx:id="horizontalSliderValue" onKeyReleased="#handleHorizontalSliderValueField" />
+                        <Slider fx:id="horizontalSlider" onMouseDragged="#handleSlider" showTickLabels="true" />
+                        <Label text="Range" />
+                        <HBox>
+                           <children>
+                              <RadioButton fx:id="range256" mnemonicParsing="false" selected="true" text="256">
+                                 <padding>
+                                    <Insets bottom="5.0" right="5.0" top="5.0" />
+                                 </padding>
+                                 <toggleGroup>
+                                    <ToggleGroup fx:id="selectRange" />
+                                 </toggleGroup>
+                              </RadioButton>
+                              <RadioButton fx:id="range512" mnemonicParsing="false" text="512" toggleGroup="$selectRange">
+                                 <padding>
+                                    <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                 </padding>
+                              </RadioButton>
+                              <RadioButton fx:id="range1024" mnemonicParsing="false" text="1024" toggleGroup="$selectRange">
+                                 <padding>
+                                    <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                 </padding>
+                              </RadioButton>
+                              <RadioButton fx:id="range2056" mnemonicParsing="false" text="2048" toggleGroup="$selectRange">
+                                 <padding>
+                                    <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                 </padding>
+                              </RadioButton>
+                           </children>
+                        </HBox>
+                        <Button fx:id="viewFreq" mnemonicParsing="false" onAction="#handleViewFreqButton" text="View Frequency" />
+                     </children>
+                     <padding>
+                        <Insets bottom="5.0" left="5.0" right="5.0" top="20.0" />
+                     </padding>
+                  </VBox>
+               </content>
+            </Tab>
+          <Tab text="Edit">
+               <content>
+                  <VBox spacing="10.0">
+                     <padding>
+                        <Insets bottom="5.0" left="5.0" right="5.0" top="20.0" />
+                     </padding>
+                     <children>
+                        <Label text="Playback control" />
+                        <HBox spacing="10.0">
+                           <children>
+                              <Button fx:id="play" mnemonicParsing="false" onAction="#handlePlayButton" text="Play" />
+                              <Button fx:id="pause" mnemonicParsing="false" onAction="#handlePauseButton" text="Pause" />
+                              <Button fx:id="stop" mnemonicParsing="false" onAction="#handleStopButton" text="Stop" />
+                           </children>
+                        </HBox>
+                        <Label fx:id="playbackState" alignment="CENTER" maxWidth="1.7976931348623157E308" textAlignment="CENTER" VBox.vgrow="SOMETIMES" />
+                     </children>
+                  </VBox>
+               </content></Tab>
+        </tabs>
+      </TabPane>
    </children>
 </GridPane>

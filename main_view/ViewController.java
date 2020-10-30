@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
@@ -25,6 +24,7 @@ import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.Slider;
@@ -40,32 +40,28 @@ import javafx.stage.Window;
 import javafx.stage.FileChooser.ExtensionFilter;
 
 public class ViewController implements Initializable {
-    @FXML
-    private MenuBar menuBar;
-    @FXML
-    private LineChart<Integer, Short> graphView;
-    @FXML
-    private NumberAxis xAxis;
-    @FXML
-    private Slider horizontalSlider;
-    @FXML
-    private TextField horizontalSliderValue;
-    @FXML
-    private ToggleGroup selectRange;
-    @FXML
-    private RadioButton range256;
-    @FXML
-    private RadioButton range512;
-    @FXML
-    private RadioButton range1024;
-    @FXML
-    private RadioButton range2056;
-    @FXML
-    private Button viewFreq;
+    @FXML private MenuBar menuBar;
+    @FXML private LineChart<Integer, Short> graphView;
+    @FXML private NumberAxis xAxis;
+    @FXML private Slider horizontalSlider;
+    @FXML private TextField horizontalSliderValue;
+    @FXML private ToggleGroup selectRange;
+    @FXML private RadioButton range256;
+    @FXML private RadioButton range512;
+    @FXML private RadioButton range1024;
+    @FXML private RadioButton range2056;
+    @FXML private Button viewFreq;
+    @FXML private Button play;
+    @FXML private Button pause;
+    @FXML private Button stop;
+    @FXML private Label playbackState;
 
     private Window window;
     private Short[] waveData;
     private AudioFormat format;
+    private File chosenFile;
+
+    private PlayWaveFileTask playTask;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -75,7 +71,7 @@ public class ViewController implements Initializable {
 
     @FXML
     protected void onFileMenuClicked(ActionEvent event) {
-        File chosenFile = choseFile();
+        chosenFile = choseFile();
 
         if (chosenFile == null)
             return;
@@ -190,6 +186,8 @@ public class ViewController implements Initializable {
         range2056.setDisable(!isGraphPainted);
         horizontalSliderValue.setDisable(!isGraphPainted);
         viewFreq.setDisable(!isGraphPainted);
+        play.setDisable(!isGraphPainted);
+        stop.setDisable(!isGraphPainted);
     }
 
     @FXML
@@ -236,15 +234,16 @@ public class ViewController implements Initializable {
         return (int) horizontalSlider.getValue();
     }
 
+    /** 周波数領域で波形データを見る */
     @FXML
     protected void handleViewFreqButton(ActionEvent event) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("../freq_view/freqView.fxml"));
             GridPane pane = loader.load();
-            
+
             FreqViewController controller = loader.getController();
             controller.drowLineChart(waveData, format, getOffset(), getOffset() + getRange());
-            
+
             Scene scene = new Scene(pane, 600, 400);
             Stage sub = new Stage();
             sub.setTitle("Frequency View");
@@ -255,5 +254,46 @@ public class ViewController implements Initializable {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+    
+    @FXML
+    protected void handlePlayButton(ActionEvent event) {
+        if (playTask == null) {
+            playTask = new PlayWaveFileTask();
+            playbackState.textProperty().bind(playTask.messageProperty());
+            playTask.start(chosenFile);
+            return;
+        }
+
+        if (playTask.nowPlaying())
+            return;
+
+        if (playTask.playingFile() == chosenFile && playTask.nowPausing()) {
+            playTask.unpause();
+            return;
+        }
+
+        if (playTask.playingFile() != chosenFile) {
+            playTask.clipClose();
+            playTask = new PlayWaveFileTask();
+            playbackState.textProperty().bind(playTask.messageProperty());
+            playTask.start(chosenFile);
+        }
+    }
+
+    @FXML
+    protected void handlePauseButton(ActionEvent event) {
+        if (playTask == null)
+            return;
+
+        playTask.pause();
+    }
+
+    @FXML
+    protected void handleStopButton(ActionEvent event) {
+        if (playTask == null)
+            return;
+
+        playTask.stop();
     }
 }
